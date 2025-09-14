@@ -1,0 +1,448 @@
+# Magento 2 GitIgnore Configuration
+# https://github.com/magento/magento2
+
+# =============================================================================
+# MAGENTO CORE FILES
+# =============================================================================
+
+# Magento root files that should not be committed
+/.buildpath
+/.cache
+/.metadata
+/.project
+/.settings
+atlassian*
+/nbproject
+/sitemap
+/sitemap.xml
+/.idea
+/.vscode
+
+# Magento generated files and directories
+/var/*
+!/var/.htaccess
+
+/generated/*
+!/generated/.htaccess
+
+/pub/media/*
+!/pub/media/.htaccess
+!/pub/media/customer/.htaccess
+!/pub/media/downloadable/.htaccess
+!/pub/media/import/.htaccess
+!/pub/media/theme_customization/.htaccess
+
+/pub/static/*
+!/pub/static/.htaccess
+
+# =============================================================================
+# MAGENTO CONFIGURATION
+# =============================================================================
+
+# Magento configuration files (contain sensitive data)
+/app/etc/env.php
+/app/etc/config.php
+
+# Local configuration
+/app/etc/di.xml
+/app/etc/vendor_path.php
+
+# =============================================================================
+# VENDOR AND DEPENDENCIES
+# =============================================================================
+
+# Composer
+/vendor/
+/composer.lock
+
+# Node.js dependencies
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =============================================================================
+# DEVELOPMENT AND BUILD FILES
+# =============================================================================
+
+# Grunt
+/.grunt
+/Gruntfile.js
+/package.json
+/package-lock.json
+
+# Gulp
+/gulpfile.js
+
+# Webpack
+/webpack.config.js
+
+# Build directories
+/build/
+/dist/
+
+# =============================================================================
+# TESTING FRAMEWORKS
+# =============================================================================
+
+# MFTF (Magento Functional Testing Framework)
+/dev/tests/acceptance/tests/_output/*
+/dev/tests/acceptance/tests/_support/_generated
+/dev/tests/acceptance/.credentials
+/dev/tests/acceptance/mftf.log
+/dev/tests/acceptance/allure-results/
+/dev/tests/acceptance/allure-report/
+
+# PHPUnit
+/dev/tests/unit/tmp/
+/phpunit.xml
+/dev/tests/integration/tmp/
+/dev/tests/integration/etc/install-config-mysql.php
+
+# Codeception
+/tests/_output/
+/tests/_support/_generated
+
+# =============================================================================
+# LOGS AND TEMPORARY FILES
+# =============================================================================
+
+# Log files
+*.log
+/var/log/*
+!/var/log/.htaccess
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Cache files
+.cache/
+*.cache
+
+# =============================================================================
+# DATABASE AND DOCKER
+# =============================================================================
+
+# Database dumps
+*.sql
+*.sql.gz
+*.sql.bz2
+
+# Docker
+/.docker/
+/docker-compose.override.yml
+/.env.docker
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# EDITORS AND IDEs
+# =============================================================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# PhpStorm / IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Atom
+.atom/
+
+# =============================================================================
+# SECURITY AND SENSITIVE DATA
+# =============================================================================
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Authentication
+/auth.json
+/.credentials
+/access_tokens
+/refresh_tokens
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr
+*.pfx
+
+# SSH keys
+id_rsa
+id_dsa
+*.ppk
+
+# =============================================================================
+# MAGENTO SPECIFIC EXCLUSIONS
+# =============================================================================
+
+# Sample files (keep structure, ignore sample data)
+/app/design/*/Magento/blank/
+/app/design/*/Magento/luma/
+/app/design/adminhtml/Magento/backend/
+
+# Magento modes
+/app/etc/NonComposerComponentRegistration.php
+
+# Magento CLI
+/bin/.htaccess
+
+# Error pages
+/pub/errors/local.xml
+
+# Media and static content (development)
+/pub/media/catalog/
+/pub/media/customer/
+/pub/media/downloadable/
+/pub/media/import/
+/pub/media/theme/
+/pub/media/wysiwyg/
+/pub/static/adminhtml/
+/pub/static/frontend/
+/pub/static/deployed_version.txt
+/pub/static/_cache/
+/pub/static/.htaccess
+
+# =============================================================================
+# MAGENTO CLOUD AND DEPLOYMENT
+# =============================================================================
+
+# Magento Cloud
+/.magento/
+/.magento.env.yaml
+/.magento.app.yaml
+
+# Deployment artifacts
+/app/etc/config.local.php
+/app/etc/env.local.php
+
+# Backup files
+*.bak
+*.backup
+backup/
+backups/
+
+# =============================================================================
+# THIRD-PARTY MODULES AND THEMES
+# =============================================================================
+
+# Third-party modules (if not using Composer)
+# Uncomment the lines below if you're not managing third-party code via Composer
+# /app/code/*/*
+# !/app/code/YourCompany/
+# !/app/code/YourNamespace/
+
+# Third-party themes
+# /app/design/frontend/*/*
+# !/app/design/frontend/YourCompany/
+# !/app/design/frontend/YourTheme/
+
+# =============================================================================
+# PERFORMANCE AND OPTIMIZATION
+# =============================================================================
+
+# Compiled CSS and JS
+*.css.map
+*.js.map
+
+# Image optimization
+*.webp.original
+*.jpg.original
+*.png.original
+
+# =============================================================================
+# CUSTOM PROJECT FILES
+# =============================================================================
+
+# Project-specific files
+/docs/build/
+/documentation/
+README.local.md
+NOTES.md
+TODO.md
+
+# Local development scripts
+/scripts/local/
+/tools/local/
+
+# Local configuration overrides
+local.xml
+local.php
+development.xml
+
+# =============================================================================
+# ARCHIVE AND COMPRESSED FILES
+# =============================================================================
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# =============================================================================
+# ADDITIONAL EXCLUSIONS
+# =============================================================================
+
+# Magento patches
+/patches/
+/app/etc/applied.patches.list
+
+# Xdebug traces
+*.xt
+
+# Profiler output
+/var/profiler/
+
+# New Relic
+newrelic.ini
+
+# Blackfire
+.blackfire.ini
+
+# Report files
+/var/report/
+
+# Session files
+/var/session/
+
+# Page cache
+/var/page_cache/
+
+# Full page cache
+/var/cache/
+
+# View preprocessed files
+/var/view_preprocessed/
+
+# Generated metadata
+/generated/metadata/
+
+# Generated code
+/generated/code/
+
+# Import/Export files
+/var/import/
+/var/export/
+/var/importexport/
+
+# Magento Connect
+/downloader/
+/pkginfo/
+
+# =============================================================================
+# KEEP IMPORTANT EMPTY DIRECTORIES
+# =============================================================================
+
+# These directories should exist but be empty
+!/var/
+/var/*
+!/var/.htaccess
+
+!/generated/
+/generated/*
+!/generated/.htaccess
+
+!/pub/media/
+/pub/media/*
+!/pub/media/.htaccess
+
+!/pub/static/
+/pub/static/*
+!/pub/static/.htaccess
+
+# =============================================================================
+# DOCKER SPECIFIC (if using Docker)
+# =============================================================================
+
+# Docker volumes data (if mounted locally)
+/docker/data/
+/docker/logs/
+
+# Docker environment overrides
+docker-compose.local.yml
+docker-compose.prod.yml
+docker-compose.dev.yml
+
+# =============================================================================
+# END OF GITIGNORE
+# =============================================================================

@@ -1,0 +1,20 @@
+bin/magento setup:install \
+--base-url=http://magento2-ce.local/magento2ee \
+--db-host=127.0.0.1:3306 \
+--db-name=magento2-ce \
+--db-user=root \
+--db-password=root \
+--admin-firstname=admin \
+--admin-lastname=admin \
+--admin-email=admin@admin.com \
+--admin-user=admin \
+--admin-password=magento@126! \
+--language=en_US \
+--currency=USD \
+--timezone=Asia/Bangkok \
+--use-rewrites=1 \
+--search-engine=opensearch \
+--opensearch-host=localhost \
+--opensearch-port=9200 \
+--opensearch-index-prefix=magento2 \
+--opensearch-timeout=15
