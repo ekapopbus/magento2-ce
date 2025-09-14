@@ -28,8 +28,11 @@ atlassian*
 /pub/media/*
 !/pub/media/.htaccess
 !/pub/media/customer/.htaccess
+!/pub/media/customer_address/.htaccess
 !/pub/media/downloadable/.htaccess
 !/pub/media/import/.htaccess
+!/pub/media/custom_options/.htaccess
+!/pub/media/sitemap/.htaccess
 !/pub/media/theme_customization/.htaccess
 
 /pub/static/*
@@ -267,9 +270,6 @@ id_dsa
 
 # Media and static content (development)
 /pub/media/catalog/
-/pub/media/customer/
-/pub/media/downloadable/
-/pub/media/import/
 /pub/media/theme/
 /pub/media/wysiwyg/
 /pub/static/adminhtml/
