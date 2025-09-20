@@ -28,6 +28,55 @@ Ensure these PHP extensions are installed:
 sudo apt install php8.4-cli php8.4-fpm php8.4-mysql php8.4-xml php8.4-gd php8.4-mbstring php8.4-curl php8.4-soap php8.4-intl php8.4-zip php8.4-bcmath
 ```
 
+### macOS (Homebrew) quick setup
+If you're installing on macOS we recommend using Docker Compose for the full stack (recommended) or Homebrew for a local PHP-based development setup. Docker avoids many macOS-specific PHP extension and permissions issues.
+
+Option A — Docker Compose (recommended):
+- Install Docker Desktop for Mac (Apple Silicon / Intel):
+```bash
+# Install Homebrew if you don't have it
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Docker Desktop
+brew install --cask docker
+# Open Docker Desktop and finish initial setup (VM/permissions)
+```
+
+Option B — Homebrew + PHP 8.4 (local PHP, advanced users):
+- Install Homebrew (if not present) and the PHP tap that provides PHP 8.4.
+```bash
+# Homebrew (if not installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Tap the maintained PHP builds and install PHP 8.4
+brew tap shivammathur/php
+brew install shivammathur/php/php@8.4
+
+# Add php to your PATH (example for zsh)
+echo 'export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="/opt/homebrew/opt/php@8.4/sbin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Install Composer
+brew install composer
+
+# Verify PHP and Composer
+php -v
+composer --version
+```
+
+Installing required PHP extensions with Homebrew is limited; many extensions are bundled with the above PHP bottle. If a required extension is missing, prefer using the Docker-based image (this repo already contains a PHP-FPM docker image and compose configuration).
+
+macOS notes and permissions
+- Filesystem mounts between macOS host and Linux containers can produce uid/gid and permission differences. Prefer running CLI bin/magento commands inside the php-fpm container to avoid ownership issues:
+```bash
+docker-compose exec php-fpm-magento bash
+cd /var/www/html
+php bin/magento <command>
+```
+- If you use local PHP, set executable bit for `bin/magento` and adjust ownership for www-data/nginx as needed. macOS uses different user/group ids — do not use 777 in long-term setups.
+
+
 ### Docker and Docker Compose
 ```bash
 # Install Docker and Docker Compose
@@ -378,6 +427,9 @@ bin/magento setup:config:set --backend-frontname=admin
 bin/magento cache:flush
 ```
 
+### Repository specifics
+This repository is configured for local development and the current admin front name is already set to `/admin` in `app/etc/env.php`. If you need to change it, edit `app/etc/env.php` or run the `bin/magento setup:config:set --backend-frontname=<name>` command and then flush the cache.
+
 ### 2. Disable Two-Factor Authentication (Development Only)
 ```bash
 # Disable 2FA modules
@@ -567,6 +619,25 @@ bin/magento
 curl -I http://magento2-ce.local/
 curl -I http://magento2-ce.local/admin
 ```
+
+### Post-deploy static fixes
+When you run `bin/magento setup:static-content:deploy` the generated static files may not always match some legacy or compatibility paths used by admin themes (for example `jquery/ui.js` vs `jquery-ui.js`). This repository includes a small helper script and Makefile target to create safe compatibility symlinks after a static deploy.
+
+- Script: `scripts/fix-static-symlinks.sh` — creates a versioned `pub/static/version<deployed_version>` symlink and common compatibility symlinks (for `jquery/ui.js`, `prototype.js`, etc.).
+- Makefile target: `make fix-static` — runs the script from the repo root.
+
+Run these after a static deploy inside the project root (example):
+```bash
+# inside php-fpm container (recommended) or on host if files are writable
+php -d memory_limit=2G bin/magento setup:static-content:deploy -f --area adminhtml --theme Magento/backend en_US
+# from host (repo root)
+chmod +x scripts/fix-static-symlinks.sh
+./scripts/fix-static-symlinks.sh
+# or
+make fix-static
+```
+
+This is a development-time convenience. For production deployments prefer to generate correct paths during your build pipeline or adjust the theme/source maps instead of relying on symlinks.
 
 ## File Structure Reference
 ```
