@@ -1,0 +1,44 @@
+# /etc/hosts snippet to block common AWS endpoints for local development
+#
+# WARNING: This redirects selected AWS hostnames to localhost (127.0.0.1).
+# It prevents PHP/AWS SDK/other clients from reaching AWS. Use only for local
+# development and testing. Do NOT commit /etc/hosts changes to shared images.
+#
+# To apply (run as root on the host):
+#   sudo cp /etc/hosts /etc/hosts.mftf-block-aws.bak
+#   sudo tee -a /etc/hosts < dev/tests/acceptance/hosts-block-aws.txt
+#
+# To revert (restore backup):
+#   sudo cp /etc/hosts.mftf-block-aws.bak /etc/hosts
+
+# --- START AWS BLOCK (entries below) ---
+127.0.0.1 s3.amazonaws.com
+127.0.0.1 s3-accelerate.amazonaws.com
+127.0.0.1 s3-website.amazonaws.com
+127.0.0.1 s3.us-east-1.amazonaws.com
+127.0.0.1 s3.us-west-2.amazonaws.com
+127.0.0.1 s3.eu-west-1.amazonaws.com
+
+127.0.0.1 ses.amazonaws.com
+127.0.0.1 ses.us-east-1.amazonaws.com
+
+127.0.0.1 sqs.amazonaws.com
+127.0.0.1 sqs.us-east-1.amazonaws.com
+
+127.0.0.1 sns.amazonaws.com
+127.0.0.1 sns.us-east-1.amazonaws.com
+
+127.0.0.1 sts.amazonaws.com
+127.0.0.1 sts.us-east-1.amazonaws.com
+
+127.0.0.1 dynamodb.amazonaws.com
+127.0.0.1 dynamodb.us-east-1.amazonaws.com
+
+# Add regioned hostnames you expect to see in logs if needed (duplicate pattern):
+# 127.0.0.1 s3.eu-central-1.amazonaws.com
+# 127.0.0.1 sqs.eu-west-1.amazonaws.com
+# 127.0.0.1 ses.eu-west-1.amazonaws.com
+# --- END AWS BLOCK ---
+
+# Note: /etc/hosts does not support wildcards. If your app calls region-specific
+# hostnames not listed above, add them to the file before applying.
