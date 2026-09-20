@@ -99,6 +99,6 @@ return [
         'elasticsearch-timeout' => '15'
     ],
     'install' => [
-        'date' => 'Fri, 19 Sep 2025 19:42:22 +0000'
+        'date' => 'Sun, 20 Sep 2026 15:23:30 +0000'
     ]
 ];

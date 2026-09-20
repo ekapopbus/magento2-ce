@@ -10,7 +10,7 @@ fi
 $PHP_BIN -d memory_limit=2G ./bin/magento setup:install \
 --cleanup-database \
 --base-url=http://magento2-ce.local/ \
---db-host=127.0.0.1:3306 \
+--db-host=127.0.0.1:3307 \
 --db-name=magento2-ce \
 --db-user=root \
 --db-password=root \

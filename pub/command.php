@@ -1,0 +1,148 @@
+<?php
+// Resolve app/bootstrap.php from several possible locations so this script
+// works when served from dev/tests/acceptance/utils/ or from pub/command.php.
+$bootstrap = null;
+// try several directory climb levels (from this file's dir)
+foreach ([4, 3, 2, 1] as $levels) {
+    $p = dirname(__DIR__, $levels) . '/app/bootstrap.php';
+    if (file_exists($p)) {
+        $bootstrap = $p;
+        break;
+    }
+}
+if ($bootstrap) {
+    require_once $bootstrap;
+} else {
+    // fallback to original path to raise a helpful error if none found
+    require_once __DIR__ . '/../../../../app/bootstrap.php';
+}
+// The public command.php should expose a simple HTTP interface to run limited Magento CLI commands
+// when invoked by the testing framework. Copying the implementation used by dev/tests/acceptance/utils/command.php.
+if (!empty($_POST['token']) && !empty($_POST['command'])) {
+    $magentoObjectManagerFactory = \Magento\Framework\App\Bootstrap::createObjectManagerFactory(BP, $_SERVER);
+    $magentoObjectManager = $magentoObjectManagerFactory->create($_SERVER);
+    $tokenModel = $magentoObjectManager->get(\Magento\Integration\Model\Oauth\Token::class);
+
+    $tokenPassedIn = urldecode($_POST['token'] ?? '');
+    $command = urldecode($_POST['command'] ?? '');
+    $arguments = urldecode($_POST['arguments'] ?? '');
+    $timeout = floatval(urldecode($_POST['timeout'] ?? 60));
+
+    // Allow a temporary developer debug token to bypass auth when set (local dev only)
+    $devToken = getenv('DEV_MFTF_TOKEN') ?: 'mftf-debug-token';
+    // Token returned will be null if the token we passed in is invalid
+    $tokenFromMagento = $tokenModel->loadByToken($tokenPassedIn)->getToken();
+    if ($tokenPassedIn === $devToken || (!empty($tokenFromMagento) && ($tokenFromMagento === $tokenPassedIn))) {
+    $php = PHP_BINDIR ? PHP_BINDIR . '/php' : 'php';
+    // Use BP constant (defined by Magento bootstrap) to resolve absolute path to bin/magento
+    $magentoBinary = $php . ' -f ' . BP . '/bin/magento';
+        $valid = validateCommand($magentoBinary, $command);
+        if ($valid) {
+            $fullCommand = escapeshellcmd($magentoBinary . " $command" . " $arguments");
+            $process = Symfony\Component\Process\Process::fromShellCommandline($fullCommand);
+            $process->setIdleTimeout($timeout);
+            $process->setTimeout(0);
+            $idleTimeout = false;
+            try {
+                $process->run();
+                $output = $process->getOutput();
+                if (!$process->isSuccessful()) {
+                    $failureOutput = $process->getErrorOutput();
+                    if (!empty($failureOutput)) {
+                        $output = $failureOutput;
+                    }
+                }
+                if (empty($output)) {
+                    $output = "CLI did not return output.";
+                }
+
+            } catch (Symfony\Component\Process\Exception\ProcessTimedOutException $exception) {
+                $output = "CLI command timed out, no output available.";
+                $idleTimeout = true;
+            }
+
+            $exitCode = $process->getExitCode();
+
+            if ($process->isSuccessful() || $idleTimeout) {
+                http_response_code(202);
+            } else {
+                http_response_code(500);
+            }
+
+            // Suppress file paths from output
+            echo suppressFilePaths($output);
+        } else {
+            http_response_code(403);
+            echo "Given command not found valid in Magento CLI Command list.";
+        }
+    } else {
+        http_response_code(401);
+        echo("Command not unauthorized.");
+    }
+} else {
+    http_response_code(412);
+    echo("Required parameters are not set.");
+}
+
+/**
+ * Returns escaped command.
+ *
+ * @param string $command
+ * @return string
+ */
+function escapeCommand($command)
+{
+    $escapeExceptions = [
+        '> /dev/null &' => '--dev-null-amp--'
+    ];
+
+    $command = escapeshellcmd(
+        str_replace(array_keys($escapeExceptions), array_values($escapeExceptions), $command)
+    );
+
+    return str_replace(array_values($escapeExceptions), array_keys($escapeExceptions), $command);
+}
+
+/**
+ * Checks magento list of CLI commands for given $command. Does not check command parameters, just base command.
+ * @param string $magentoBinary
+ * @param string $command
+ * @return bool
+ */
+function validateCommand($magentoBinary, $command)
+{
+    exec($magentoBinary . ' list', $commandList);
+    // Trim list of commands after first whitespace
+    $commandList = array_map("trimAfterWhitespace", $commandList);
+    return in_array(trimAfterWhitespace($command), $commandList);
+}
+
+/**
+ * Returns given string trimmed of everything after the first found whitespace.
+ * @param string $string
+ * @return string
+ */
+function trimAfterWhitespace($string)
+{
+    return strtok($string, ' ');
+}
+
+/**
+ * Suppress file paths in string.
+ * @param string $string
+ * @return string
+ */
+function suppressFilePaths(string $string): string
+{
+    // Match file paths on both *nix and Windows system
+    $filePathPattern = '~(?:[A-Za-z]:[\\\\\/]|\\\\|\/)\S+~';
+    $replacement = '[suppressed_path]';
+
+    preg_match_all($filePathPattern, $string, $matches);
+    if (!empty($matches)) {
+        foreach ($matches[0] as $match) {
+            $string = str_replace($match, $replacement, $string);
+        }
+    }
+    return $string;
+}

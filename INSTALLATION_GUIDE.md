@@ -3,6 +3,7 @@
 Complete step-by-step guide for installing Magento 2 CE with Nginx, disabling 2FA, and setting up MFTF testing framework.
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Docker Services Setup](#docker-services-setup)
 3. [Database Setup](#database-setup)
@@ -15,6 +16,7 @@ Complete step-by-step guide for installing Magento 2 CE with Nginx, disabling 2F
 ## Prerequisites
 
 ### System Requirements
+
 - Ubuntu 22.04 LTS
 - PHP 8.4 with FPM
 - MySQL 8.0+ (can be Docker container)
@@ -23,16 +25,21 @@ Complete step-by-step guide for installing Magento 2 CE with Nginx, disabling 2F
 - OpenSearch/Elasticsearch
 
 ### Required PHP Extensions
+
 Ensure these PHP extensions are installed:
+
 ```bash
 sudo apt install php8.4-cli php8.4-fpm php8.4-mysql php8.4-xml php8.4-gd php8.4-mbstring php8.4-curl php8.4-soap php8.4-intl php8.4-zip php8.4-bcmath
 ```
 
 ### macOS (Homebrew) quick setup
+
 If you're installing on macOS we recommend using Docker Compose for the full stack (recommended) or Homebrew for a local PHP-based development setup. Docker avoids many macOS-specific PHP extension and permissions issues.
 
 Option A — Docker Compose (recommended):
+
 - Install Docker Desktop for Mac (Apple Silicon / Intel):
+
 ```bash
 # Install Homebrew if you don't have it
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -43,7 +50,9 @@ brew install --cask docker
 ```
 
 Option B — Homebrew + PHP 8.4 (local PHP, advanced users):
+
 - Install Homebrew (if not present) and the PHP tap that provides PHP 8.4.
+
 ```bash
 # Homebrew (if not installed)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -68,16 +77,19 @@ composer --version
 Installing required PHP extensions with Homebrew is limited; many extensions are bundled with the above PHP bottle. If a required extension is missing, prefer using the Docker-based image (this repo already contains a PHP-FPM docker image and compose configuration).
 
 macOS notes and permissions
+
 - Filesystem mounts between macOS host and Linux containers can produce uid/gid and permission differences. Prefer running CLI bin/magento commands inside the php-fpm container to avoid ownership issues:
+
 ```bash
 docker-compose exec php-fpm-magento bash
 cd /var/www/html
 php bin/magento <command>
 ```
+
 - If you use local PHP, set executable bit for `bin/magento` and adjust ownership for www-data/nginx as needed. macOS uses different user/group ids — do not use 777 in long-term setups.
 
-
 ### Docker and Docker Compose
+
 ```bash
 # Install Docker and Docker Compose
 sudo apt update
@@ -98,6 +110,7 @@ docker-compose --version
 ## Docker Services Setup
 
 ### 1. Create Docker Compose Configuration
+
 Create `docker-compose.yml` in your project root:
 
 ```yaml
@@ -199,6 +212,7 @@ networks:
 ```
 
 ### 2. Create MySQL Configuration
+
 Create directory and configuration file:
 
 ```bash
@@ -206,6 +220,7 @@ mkdir -p docker/mysql/conf.d
 ```
 
 Create `docker/mysql/conf.d/magento.cnf`:
+
 ```ini
 [mysqld]
 # Magento 2 optimized MySQL configuration
@@ -240,10 +255,11 @@ character_set_server = utf8mb4
 collation_server = utf8mb4_unicode_ci
 
 # SQL mode for Magento compatibility
-sql_mode = "STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+sql_mode = "STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
 ```
 
 ### 3. Start All Services
+
 ```bash
 # Start all Docker services
 docker-compose up -d
@@ -257,6 +273,7 @@ docker-compose logs opensearch
 ```
 
 ### 4. Verify Services
+
 ```bash
 # Test MySQL connection
 docker exec -it mysql-magento mysql -u root -proot -e "SHOW DATABASES;"
@@ -274,6 +291,7 @@ docker exec -it redis-magento redis-cli ping
 ## Database Setup
 
 ### Using Docker Compose (Recommended)
+
 If you followed the Docker Services Setup above, your database is already running. You can access it via:
 
 ```bash
@@ -289,6 +307,7 @@ mysql -h 127.0.0.1 -P 3306 -u root -proot magento2-ce
 ```
 
 ### Alternative: Manual Docker MySQL Setup
+
 ```bash
 # Start MySQL container manually
 docker run -d --name mysql-magento \
@@ -306,6 +325,7 @@ mysql -h 127.0.0.1 -P 3306 -u root -proot -e "SHOW DATABASES;"
 ## Magento Installation
 
 ### 1. Download Magento 2 CE
+
 ```bash
 cd /home/ubuntu/workspaces/projects/
 composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition magento2-ce
@@ -313,6 +333,7 @@ cd magento2-ce
 ```
 
 ### 2. Set Permissions
+
 ```bash
 # Set directory permissions
 sudo chmod -R 755 /home/ubuntu/workspaces/projects/magento2-ce
@@ -322,9 +343,11 @@ chmod +x bin/magento
 ```
 
 ### 3. Install Magento
+
 Create installation script `magento-install.sh`:
 
 #### For OpenSearch (Recommended)
+
 ```bash
 #!/bin/bash
 bin/magento setup:install \
@@ -350,6 +373,7 @@ bin/magento setup:install \
 ```
 
 #### For Elasticsearch (Alternative)
+
 ```bash
 #!/bin/bash
 bin/magento setup:install \
@@ -375,6 +399,7 @@ bin/magento setup:install \
 ```
 
 Run installation:
+
 ```bash
 chmod +x magento-install.sh
 ./magento-install.sh
@@ -383,7 +408,9 @@ chmod +x magento-install.sh
 ## Nginx Configuration
 
 ### 1. Create Virtual Host
+
 Create `/etc/nginx/sites-available/magento2-ce.local`:
+
 ```nginx
 upstream fastcgi_backend {
     server unix:/run/php/php8.4-fpm.sock;
@@ -393,12 +420,13 @@ server {
     listen 80;
     server_name magento2-ce.local;
     set $MAGE_ROOT /home/ubuntu/workspaces/projects/magento2-ce;
-    
+  
     include /home/ubuntu/workspaces/projects/magento2-ce/nginx.conf.sample;
 }
 ```
 
 ### 2. Enable Site
+
 ```bash
 sudo ln -sf /etc/nginx/sites-available/magento2-ce.local /etc/nginx/sites-enabled/
 sudo nginx -t
@@ -406,11 +434,13 @@ sudo systemctl reload nginx
 ```
 
 ### 3. Update Hosts File
+
 ```bash
 echo "127.0.0.1 magento2-ce.local" | sudo tee -a /etc/hosts
 ```
 
 ### 4. Fix Directory Permissions for Nginx
+
 ```bash
 # Ensure nginx can traverse to the Magento directory
 sudo chmod 755 /home/ubuntu/
@@ -421,16 +451,20 @@ sudo chmod 755 /home/ubuntu/workspaces/projects/
 ## Admin Configuration
 
 ### 1. Change Admin URL (Optional)
+
 Change from random URL to simple `/admin`:
+
 ```bash
 bin/magento setup:config:set --backend-frontname=admin
 bin/magento cache:flush
 ```
 
 ### Repository specifics
+
 This repository is configured for local development and the current admin front name is already set to `/admin` in `app/etc/env.php`. If you need to change it, edit `app/etc/env.php` or run the `bin/magento setup:config:set --backend-frontname=<name>` command and then flush the cache.
 
 ### 2. Disable Two-Factor Authentication (Development Only)
+
 ```bash
 # Disable 2FA modules
 bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
@@ -442,13 +476,16 @@ bin/magento cache:flush
 ```
 
 ### 3. Verify Installation
+
 Test frontend and admin access:
+
 ```bash
 curl -I http://magento2-ce.local/
 curl -I http://magento2-ce.local/admin
 ```
 
 Admin credentials:
+
 - **URL**: http://magento2-ce.local/admin
 - **Username**: admin
 - **Password**: magento@126!
@@ -458,6 +495,7 @@ Admin credentials:
 ### 1. Install Dependencies
 
 #### Install Google Chrome
+
 ```bash
 wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
@@ -466,6 +504,7 @@ sudo apt install -y google-chrome-stable
 ```
 
 #### Install ChromeDriver
+
 ```bash
 # Get Chrome version and download matching ChromeDriver
 CHROME_VERSION=$(google-chrome --version | cut -d ' ' -f3)
@@ -476,11 +515,13 @@ sudo chmod +x /usr/local/bin/chromedriver
 ```
 
 #### Install Java
+
 ```bash
 sudo apt install -y default-jdk
 ```
 
 ### 2. Configure MFTF Environment
+
 ```bash
 # Create acceptance test directory
 mkdir -p dev/tests/acceptance
@@ -490,7 +531,9 @@ vendor/bin/mftf setup:env
 ```
 
 ### 3. Update Environment Configuration
+
 Edit `dev/tests/acceptance/.env`:
+
 ```env
 MAGENTO_BASE_URL=http://magento2-ce.local/
 MAGENTO_BACKEND_BASE_URL=http://magento2-ce.local/admin/
@@ -510,12 +553,15 @@ ELASTICSEARCH_VERSION=7
 ```
 
 ### 4. Create Credentials File
+
 Create `dev/tests/acceptance/.credentials`:
+
 ```
 magento/MAGENTO_ADMIN_PASSWORD=magento@126!
 ```
 
 ### 5. Set Up MFTF Files
+
 ```bash
 # Copy htaccess file
 cp dev/tests/acceptance/.htaccess.sample dev/tests/acceptance/.htaccess
@@ -528,6 +574,7 @@ vendor/bin/mftf generate:tests --force
 ```
 
 ### 6. Verify MFTF Setup
+
 ```bash
 # Check environment health
 vendor/bin/mftf doctor
@@ -542,6 +589,7 @@ vendor/bin/mftf run:test AdminLoginTest --force
 ## MFTF Usage
 
 ### Basic Commands
+
 ```bash
 # Generate all tests
 vendor/bin/mftf generate:tests --force
@@ -560,6 +608,7 @@ vendor/bin/mftf static-checks
 ```
 
 ### Test Output Location
+
 - Test results: `dev/tests/acceptance/tests/_output/`
 - Screenshots: `dev/tests/acceptance/tests/_output/debug/`
 - Logs: `dev/tests/acceptance/mftf.log`
@@ -569,12 +618,15 @@ vendor/bin/mftf static-checks
 ### Common Issues
 
 #### 1. Database Connection Error
+
 **Problem**: `SQLSTATE[HY000] [2002] No such file or directory`
 **Solution**: Use `127.0.0.1` instead of `localhost` for Docker MySQL
 
 #### 2. 500 Internal Server Error
+
 **Problem**: File permission issues
-**Solution**: 
+**Solution**:
+
 ```bash
 sudo chown -R ubuntu:ubuntu /home/ubuntu/workspaces/projects/magento2-ce
 sudo chmod -R 755 /home/ubuntu/workspaces/projects/magento2-ce
@@ -582,8 +634,10 @@ sudo chmod -R 777 var/ generated/ pub/static/ pub/media/
 ```
 
 #### 3. Nginx 403 Forbidden
+
 **Problem**: Directory traversal permissions
 **Solution**:
+
 ```bash
 sudo chmod 755 /home/ubuntu/
 sudo chmod 755 /home/ubuntu/workspaces/
@@ -591,14 +645,17 @@ sudo chmod 755 /home/ubuntu/workspaces/projects/
 ```
 
 #### 4. MFTF Browser Timeout
+
 **Problem**: Headless browser navigation timeouts
 **Solution**: Increase timeout values in `.env` file or use non-headless mode for debugging
 
 #### 5. Admin 2FA Blocking Access
+
 **Problem**: Two-factor authentication enabled
 **Solution**: Disable 2FA modules as shown in Admin Configuration section
 
 ### Useful Commands
+
 ```bash
 # Clear all caches
 bin/magento cache:flush
@@ -621,12 +678,14 @@ curl -I http://magento2-ce.local/admin
 ```
 
 ### Post-deploy static fixes
+
 When you run `bin/magento setup:static-content:deploy` the generated static files may not always match some legacy or compatibility paths used by admin themes (for example `jquery/ui.js` vs `jquery-ui.js`). This repository includes a small helper script and Makefile target to create safe compatibility symlinks after a static deploy.
 
 - Script: `scripts/fix-static-symlinks.sh` — creates a versioned `pub/static/version<deployed_version>` symlink and common compatibility symlinks (for `jquery/ui.js`, `prototype.js`, etc.).
 - Makefile target: `make fix-static` — runs the script from the repo root.
 
 Run these after a static deploy inside the project root (example):
+
 ```bash
 # inside php-fpm container (recommended) or on host if files are writable
 php -d memory_limit=2G bin/magento setup:static-content:deploy -f --area adminhtml --theme Magento/backend en_US
@@ -640,6 +699,7 @@ make fix-static
 This is a development-time convenience. For production deployments prefer to generate correct paths during your build pipeline or adjust the theme/source maps instead of relying on symlinks.
 
 ## File Structure Reference
+
 ```
 magento2-ce/
 ├── app/                          # Magento application code
@@ -679,6 +739,6 @@ After successful installation:
 
 **Installation completed successfully!** 🎉
 
-Frontend: http://magento2-ce.local/  
-Admin Panel: http://magento2-ce.local/admin  
+Frontend: http://magento2-ce.local/
+Admin Panel: http://magento2-ce.local/admin
 Credentials: admin / magento@126!

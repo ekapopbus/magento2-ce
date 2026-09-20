@@ -11,7 +11,7 @@ services:
       MYSQL_USER: magento
       MYSQL_PASSWORD: magento
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/conf.d:/etc/mysql/conf.d
@@ -96,7 +96,7 @@ services:
 
   nginx:
     image: nginx:1.27.3
-    container_name: nginx
+    container_name: nginx-magento
     restart: unless-stopped
     ports:
       - "80:80"
@@ -107,7 +107,9 @@ services:
       - php-fpm
       - elasticsearch
     networks:
-      - magento-network
+      magento-network:
+        aliases:
+          - magento2-ce.local
 
 volumes:
   mysql_data:

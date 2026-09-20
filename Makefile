@@ -6,7 +6,7 @@ help:
 	@echo "Available targets: start, stop, fix-static"
 
 start:
-	docker-compose up -d
+	./start.sh
 
 stop:
 	docker-compose down

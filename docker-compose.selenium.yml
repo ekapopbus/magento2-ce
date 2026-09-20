@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    container_name: selenium-magento
+    shm_size: '2g'
+    # restart: unless-stopped
+    environment:
+      - SE_NODE_SESSION_TIMEOUT=120
+    extra_hosts:
+      - "magento2-ce.local:172.19.0.8"
+    networks:
+      - magento-network
+
+networks:
+  magento-network:
+    driver: bridge
