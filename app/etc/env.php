@@ -33,7 +33,7 @@ return [
         'table_prefix' => '',
         'connection' => [
             'default' => [
-                'host' => 'mysql:3306',
+                'host' => '127.0.0.1:3306',
                 'dbname' => 'magento2-ce',
                 'username' => 'root',
                 'password' => 'root',
@@ -53,7 +53,7 @@ return [
         ]
     ],
     'x-frame-options' => 'SAMEORIGIN',
-    'MAGE_MODE' => 'default',
+    'MAGE_MODE' => 'production',
     'session' => [
         'save' => 'files',
         'save_path' => '/tmp/magento_sessions'
