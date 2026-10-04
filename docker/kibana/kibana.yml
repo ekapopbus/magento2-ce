@@ -1,0 +1,13 @@
+xpack.encryptedSavedObjects.encryptionKey: "1bcf7dfae8a27a723237b02d51782241198ae1f4e9f297d22ac372693413427a"
+pid:
+  file: /opt/bitnami/kibana/tmp/kibana.pid
+server:
+  host: 0.0.0.0
+  port: 5601
+elasticsearch:
+  hosts: http://elasticsearch:9200
+xpack:
+  security:
+    encryptionKey: 5f57c9c0a9a01a7b9136c2c2b8a3180d2f60a69eee81ac5ccf0274a7768de8d9
+  reporting:
+    encryptionKey: 84c203b9c73a086fa997d9590f2dc6a38e90c05b4e2c8e001e4cd6af47408ee6

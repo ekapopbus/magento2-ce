@@ -17,6 +17,13 @@ else
     docker compose up -d --no-deps elasticsearch
 fi
 
+# Kibana: reuse the one from local-services if running, otherwise start ours
+if docker ps --format '{{.Names}}' | grep -qx kibana; then
+    docker network connect "$NETWORK" kibana 2>/dev/null || true
+else
+    docker compose up -d --no-deps kibana
+fi
+
 # Session dir lives in the container's /tmp and is lost on recreate
 docker exec -u root php-fpm-magento sh -c 'mkdir -p /tmp/magento_sessions && chmod 1777 /tmp/magento_sessions'
 

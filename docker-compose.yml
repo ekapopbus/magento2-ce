@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0.33
@@ -20,7 +18,7 @@ services:
       - magento-network
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.18.0
     container_name: elasticsearch-magento
     restart: unless-stopped
     environment:
@@ -37,6 +35,26 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - magento-network
+  
+  kibana:
+    container_name: "kibana"
+    image: bitnami/kibana:8
+    ports:
+      - '5601:5601'
+    environment:
+      - KIBANA_ELASTICSEARCH_URL=elasticsearch
+      - KIBANA_ELASTICSEARCH_PORT=9200
+      - KIBANA_XPACK_SECURITY_ENCRYPTIONKEY=5f57c9c0a9a01a7b9136c2c2b8a3180d2f60a69eee81ac5ccf0274a7768de8d9
+      - KIBANA_XPACK_REPORTING_ENCRYPTIONKEY=84c203b9c73a086fa997d9590f2dc6a38e90c05b4e2c8e001e4cd6af47408ee6
+    networks:
+      - magento-network
+      - local
+    # restart: always
+    volumes:
+      - 'kibana_data:/bitnami/kibana'
+      - './docker/kibana/kibana.yml:/opt/bitnami/kibana/config/kibana.yml'
+    depends_on:
+      - elasticsearch
 
   opensearch:
     image: opensearchproject/opensearch:2.5.0
@@ -122,7 +140,11 @@ volumes:
     driver: local
   redis_data:
     driver: local
-
+  kibana_data:
+    driver: local
 networks:
   magento-network:
     driver: bridge
+  local:
+    name: local
+    external: true

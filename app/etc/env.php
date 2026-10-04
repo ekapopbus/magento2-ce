@@ -33,7 +33,7 @@ return [
         'table_prefix' => '',
         'connection' => [
             'default' => [
-                'host' => '127.0.0.1:3306',
+                'host' => 'mysql:3306',
                 'dbname' => 'magento2-ce',
                 'username' => 'root',
                 'password' => 'root',
