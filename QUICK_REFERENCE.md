@@ -3,6 +3,7 @@
 ## Docker Compose Setup (Recommended)
 
 ### Start All Services
+
 ```bash
 # Start all Docker services (MySQL, OpenSearch, Redis, PHPMyAdmin)
 docker-compose up -d
@@ -16,12 +17,14 @@ docker-compose logs opensearch
 ```
 
 ### Alternative: Individual Docker Commands
+
 ```bash
 # Start MySQL Docker container only
 docker run -d --name mysql-magento -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=magento2-ce -p 3306:3306 mysql:8.0.33
 ```
 
 ## Prerequisites Installation
+
 ```bash
 # Install PHP 8.4 and extensions
 sudo apt install php8.4-cli php8.4-fpm php8.4-mysql php8.4-xml php8.4-gd php8.4-mbstring php8.4-curl php8.4-soap php8.4-intl php8.4-zip php8.4-bcmath
@@ -33,7 +36,9 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
 ```
+
 ## Magento Installation
+
 ```bash
 # Download and install
 composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition magento2-ce
@@ -92,6 +97,7 @@ bin/magento setup:install \
 ```
 
 ## Nginx Configuration
+
 ```bash
 # Create virtual host /etc/nginx/sites-available/magento2-ce.local
 upstream fastcgi_backend {
@@ -114,6 +120,7 @@ sudo chmod 755 /home/ubuntu/ /home/ubuntu/workspaces/ /home/ubuntu/workspaces/pr
 ```
 
 ## Admin Configuration
+
 ```bash
 # Change admin URL to /admin
 bin/magento setup:config:set --backend-frontname=admin
@@ -126,6 +133,7 @@ bin/magento cache:flush
 ```
 
 ## MFTF Setup
+
 ```bash
 # Install Chrome and ChromeDriver
 wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -146,6 +154,7 @@ vendor/bin/mftf setup:env
 ## MFTF Configuration Files
 
 ### dev/tests/acceptance/.env
+
 ```env
 MAGENTO_BASE_URL=http://magento2-ce.local/
 MAGENTO_BACKEND_BASE_URL=http://magento2-ce.local/admin/
@@ -165,11 +174,13 @@ ELASTICSEARCH_VERSION=7
 ```
 
 ### dev/tests/acceptance/.credentials
+
 ```
 magento/MAGENTO_ADMIN_PASSWORD=magento@126!
 ```
 
 ## Complete MFTF Setup
+
 ```bash
 # Copy htaccess and build project
 cp dev/tests/acceptance/.htaccess.sample dev/tests/acceptance/.htaccess
@@ -181,6 +192,7 @@ vendor/bin/mftf doctor
 ```
 
 ## Docker Services Management
+
 ```bash
 # Start all services
 docker-compose up -d
@@ -208,6 +220,7 @@ docker-compose down -v
 ```
 
 ## Service URLs
+
 ```bash
 # Application URLs
 Frontend: http://magento2-ce.local/
@@ -219,7 +232,9 @@ OpenSearch: http://localhost:9201
 Elasticsearch: http://localhost:9200 (if using Elasticsearch)
 Redis: localhost:6379
 ```
+
 ## Final Verification
+
 ```bash
 # Test URLs
 curl -I http://magento2-ce.local/        # Should return 200 OK
@@ -237,6 +252,7 @@ docker exec -it mysql-magento mysql -u root -proot -e "SHOW DATABASES;"
 ```
 
 ## Common Issues & Quick Fixes
+
 ```bash
 # Database connection error - use 127.0.0.1 not localhost for Docker
 # 500 errors - fix permissions: sudo chmod -R 755 /home/ubuntu/workspaces/projects/magento2-ce
@@ -248,6 +264,7 @@ docker exec -it mysql-magento mysql -u root -proot -e "SHOW DATABASES;"
 ```
 
 ## Essential Commands
+
 ```bash
 # Magento commands
 bin/magento cache:flush                           # Clear cache
@@ -267,5 +284,6 @@ docker-compose logs <service>                     # View service logs
 ```
 
 ---
-**Total installation time: ~30-45 minutes**  
+
+**Total installation time: ~30-45 minutes**
 **Key success factors: Use Docker Compose, 127.0.0.1 for MySQL, fix directory permissions, disable 2FA for development**

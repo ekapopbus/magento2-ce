@@ -27,7 +27,9 @@ services:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
-      - xpack.security.enrollment.enabled=false
+      # Works around a JDK 19 ARM64 SVE vector-length detection bug that crashes
+      # with SIGILL under Docker Desktop's virtualization on Apple Silicon.
+      - "JDK_JAVA_OPTIONS=-XX:UseSVE=0"
     ports:
       - "9200:9200"
       - "9300:9300"
