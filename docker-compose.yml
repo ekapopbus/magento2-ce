@@ -91,6 +91,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./:/var/www/html:cached
+      - ./docker/php-fpm/conf.d/uploads.ini:/usr/local/etc/php/conf.d/zz-uploads.ini:ro
     working_dir: /var/www/html
     networks:
       - magento-network
